@@ -128,7 +128,7 @@ class Login extends Component {
             if(response.ok){
                 console.log("Registration successful")
                 this.setState({newUserName:"",newUserPassword:"",confirmPassword:"",errorMessageRegister:""})
-                this.props.history.push("/")
+                this.setState({register:false})
             }else{
                 console.log("Registration failed")
                 
