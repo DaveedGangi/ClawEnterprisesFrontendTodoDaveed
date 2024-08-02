@@ -1,6 +1,11 @@
 
 ### Note 
 
+backend git hub url :https://github.com/DaveedGangi/ClawEnterprisesBackendTodoDaveed.git
+frontend git hub url: https://github.com/DaveedGangi/ClawEnterprisesFrontendTodoDaveed.git
+
+hoisted todo app: https://todoappdaveed.netlify.app/
+
 ### login and register 
 
 ## Packages Used
