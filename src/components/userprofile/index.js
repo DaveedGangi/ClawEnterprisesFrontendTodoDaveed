@@ -9,11 +9,24 @@ import {Link,Redirect} from "react-router-dom"
 
 import Cookies from "js-cookie"
 
+import Lottie from "react-lottie";
+
+import sessions from "../animations/sessions.json";
+
+
+
 import "./index.css"
+
+const conditonSessions={
+    status:"INITIAL",
+    success:"SUCCESS",
+    failure:"FAILURE",
+    loading:"LOADING"
+}
 
 class Profile extends Component {
 
-    state={session:[]}
+    state={session:[],statusSession:conditonSessions.status}
 
     componentDidMount() {
 
@@ -25,14 +38,16 @@ class Profile extends Component {
 
         const url="https://clawenterprisesbackendtododaveed.onrender.com/sessions"
         
-
+         this.setState({statusSession:conditonSessions.loading})
         const response=await fetch(url)
         if(response.ok){
             const responseToJson=await response.json()
             console.log("response",responseToJson)
-            this.setState({session:responseToJson})
+            this.setState({session:responseToJson,statusSession:conditonSessions.success})
+
         }else{
             console.log("Error fetching all sessions")
+            this.setState({statusSession:conditonSessions.failure})
 
         }
 
@@ -80,8 +95,66 @@ class Profile extends Component {
 
 
     }
+
+    
+loadingSessions=()=>
+    <div className="animation-for-loading">
+        <Lottie options={{ animationData: sessions, loop: true, autoplay: true }} height={200} width={200} />
+       
+    </div> 
+
+gettingAllSession=()=>{
+    const {session}=this.state
+
+   return (<div className="time-spend-spent-container">
+             
+    {
+      session.length>0?
+      <div className="session-container">
+          {
+              session.map((session,index)=>(
+                  <div className="session" key={session.id}>
+                      <p>id:{session.id}</p>
+                      <p>Start time: {session.login_time}</p>
+                      <p>End time: {session.logout_time}</p>
+                   <hr/>
+                  </div>
+              ))
+          }
+      </div>
+      :
+      <div className="no-session-container">
+          <h3>No sessions yet</h3>
+      </div>
+    }
+
+  </div>)
+
+}
+
+    timeSpent = ()=>{
+
+        const {statusSession} = this.state 
+
+        switch(statusSession){
+            case conditonSessions.loading:
+                return this.loadingSessions()
+            case conditonSessions.success:
+                return this.gettingAllSession()
+            case conditonSessions.failure:
+                return "Failed to fetch sessions"
+            default:
+                return "No sessions found"
+            
+        }
+
+
+    }
+
+
+
     render(){
-        const{session}=this.state
+      
         const jwtToken = Cookies.get("jwtToken")
         const {username}=JSON.parse(localStorage.getItem("user"))
         if(jwtToken===undefined){
@@ -92,12 +165,13 @@ class Profile extends Component {
         return(
             <div>
 
+                <div className="profile-card">
+
                 <div className="profile-container">
                 <h1>Profile</h1>
-                <h2>Welcome, {username}!</h2>
+                <h2 className="welcome-to-profile">Welcome, <span className="users-name">{username}! </span></h2>
 
-
-                <h3>Hey back to Home   </h3>
+                <h3>Go to Homepage   </h3>
                 <Link to ="/">
                 
                 <button className="home-profile-button" type="button">Home</button>
@@ -105,34 +179,23 @@ class Profile extends Component {
 
                 <h3>or</h3>
                 <button className="user-logout-button" onClick={this.logoutUser} type="button">Logout</button>
-            </div>
+                 </div>
+
+                </div>
 
 
             <hr/>
 
-            <div className="time-spend-spent-container">
-             
-              {
-                session.length>0?
-                <div className="session-container">
-                    {
-                        session.map((session,index)=>(
-                            <div className="session" key={session.id}>
-                                <p>id:{session.id}</p>
-                                <p>Start time: {session.login_time}</p>
-                                <p>End time: {session.logout_time}</p>
-                             <hr/>
-                            </div>
-                        ))
-                    }
-                </div>
-                :
-                <div className="no-session-container">
-                    <h3>No sessions yet</h3>
-                </div>
-              }
 
-            </div>
+
+          
+            {
+                this.timeSpent()
+            }
+
+
+
+
             </div>
         )
     }

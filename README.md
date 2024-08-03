@@ -245,6 +245,10 @@ Sure, here's a section for your README.md file outlining the important points of
 
 ---
 
+### Lottie for animation
+
+Lottie Animations
+Lottie is a powerful library for rendering animations on the web and mobile. It provides a way to use animations created in Adobe After Effects and exported as JSON files using the Bodymovin plugin. These animations are rendered natively across multiple platforms, ensuring smooth and high-quality animations.
 
 
 
