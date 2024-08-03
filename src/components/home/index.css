@@ -172,6 +172,14 @@
     overflow-y: auto;
 }
 
+.animation-for-loading{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height:60vh;
+
+}
 @media (max-width:767px){
 
     .no-todo-found{

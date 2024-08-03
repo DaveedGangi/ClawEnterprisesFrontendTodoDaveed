@@ -12,11 +12,22 @@ import { RiTodoLine } from "react-icons/ri";
 
 import { GiHamburgerMenu } from "react-icons/gi";
 
+import Lottie from "react-lottie";
+
+import animation from "../animations/animation.json";
+
 import "./index.css"
+
+let basedOnConditions={
+    status:"INISTIAL",
+    success:"SUCCESS",
+    failure:"FAILURE",
+    loading:"LOADING"
+}
 
 class Home extends Component {
 
-        state={editId:"",showEdits:false,editTitle:"",editDescription:"",title:"",description:"",todos:[],show:false,searchInput:"",showAllTodos:false}
+        state={condition:basedOnConditions.status, editId:"",showEdits:false,editTitle:"",editDescription:"",title:"",description:"",todos:[],show:false,searchInput:"",showAllTodos:false}
 
         componentDidMount(){
             this.fetchAllTodos();
@@ -28,7 +39,7 @@ class Home extends Component {
             const userData=JSON.parse(localStorage.getItem("user"));
             console.log("usersData",userData.id)
           
-
+              this.setState({condition:basedOnConditions.loading})
             const url=`https://clawenterprisesbackendtododaveed.onrender.com/todos/${userData.id}`
 
            const response=await fetch(url);
@@ -39,7 +50,11 @@ class Home extends Component {
              console.log("loginTime",localStorage.getItem("loginTime"))
 
              const filteredSearch=data.filter(todo=>todo.title.toLowerCase().includes(this.state.searchInput.toLowerCase()))
-             this.setState({todos:filteredSearch})
+             this.setState({todos:filteredSearch,condition:basedOnConditions.success});
+           }
+           else{
+             console.log("error in fetching data",response.statusText)
+             this.setState({condition:basedOnConditions.failure})
            }
 
 
@@ -185,8 +200,101 @@ class Home extends Component {
      
       this.fetchAllTodos()
     }
+
+
+    showAllTodosSuccessView=()=>{
+         const {showAllTodos,todos} = this.state;
+
+       return( <div>
+        {showAllTodos===false && <div className="all-notes-container">
+            <div className="todos-container">
+                  
+                      {todos.length>0?
+
+                  
+                         
+                         
+                              todos.map((each)=><div className="each-todo" key={each.id}>
+                              <h3>{each.title}</h3>
+                            
+                              <p>{each.description}</p>
+                              
+                              <div>
+                              <button className="btn btn-primary" onClick={()=>this.updateItem(each)}>Edit</button>
+                              &nbsp;&nbsp;&nbsp;&nbsp;
+                              <button className="btn btn-danger" onClick={()=>this.deleteItem(each.id)}>Delete</button>
+                              </div>
+                                               </div>)
+
+                             
+                          
+                          :  
+                          
+                          <div className="no-todo-found-container">
+                              <div>
+                              <h3>No Todos Found</h3>
+                              <p>No todos found in your list</p>
+                              <img src="https://img.freepik.com/free-vector/work-life-balance-concept-illustration_114360-8897.jpg?t=st=1722526776~exp=1722530376~hmac=3171a049a17b4887e3e7e3043af5665719903884dc154e39b565749f81506e09&w=740" className="no-todo-found" alt="no-todo-found" />
+                              </div>
+                          </div>
+
+                      
+                       }
+
+            </div>
+      </div>}  
+
+
+      </div>
+
+                    )
+
+
+
+
+
+    }
+
+showAllTodosFailureView=()=><div>
+    <div>Failed to fetch Todos, please try again later</div>
+</div>
+
+
+loading=()=>
+    <div className="animation-for-loading">
+        <Lottie options={{ animationData: animation, loop: true, autoplay: true }} height={200} width={200} />
+       
+    </div>
+
+showAllTodos=()=>{
+
+    const {condition} = this.state;
+    switch(condition) {
+        case basedOnConditions.loading:
+            return this.loading();
+        case basedOnConditions.success:
+            return this.showAllTodosSuccessView();
+        case basedOnConditions.failure:
+            return this.showAllTodosFailureView();
+        default:
+            return null;
+    }
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
     render() {
-        const{showEdits,editTitle,editDescription,title,description,todos,show,searchInput,showAllTodos}=this.state
+        const{showEdits,editTitle,editDescription,title,description,show,searchInput,showAllTodos}=this.state
         const jwtToken = Cookies.get("jwtToken");
         if(jwtToken===undefined){
             return <Redirect to="/login" />
@@ -260,43 +368,11 @@ class Home extends Component {
                 </div>
 
 
-        {showAllTodos===false && <div className="all-notes-container">
-              <div className="todos-container">
-                    
-                        {todos.length>0?
 
-                    
-                           
-                           
-                                todos.map((each)=><div className="each-todo" key={each.id}>
-                                <h3>{each.title}</h3>
-                              
-                                <p>{each.description}</p>
-                                
-                                <div>
-                                <button className="btn btn-primary" onClick={()=>this.updateItem(each)}>Edit</button>
-                                &nbsp;&nbsp;&nbsp;&nbsp;
-                                <button className="btn btn-danger" onClick={()=>this.deleteItem(each.id)}>Delete</button>
-                                </div>
-                                                 </div>)
 
-                               
-                            
-                            :  
-                            
-                            <div className="no-todo-found-container">
-                                <div>
-                                <h3>No Todos Found</h3>
-                                <p>No todos found in your list</p>
-                                <img src="https://img.freepik.com/free-vector/work-life-balance-concept-illustration_114360-8897.jpg?t=st=1722526776~exp=1722530376~hmac=3171a049a17b4887e3e7e3043af5665719903884dc154e39b565749f81506e09&w=740" className="no-todo-found" alt="no-todo-found" />
-                                </div>
-                            </div>
-
-                        
-                         }
-
-              </div>
-        </div>}  
+        {
+            this.showAllTodos()
+        }
 
 
 
